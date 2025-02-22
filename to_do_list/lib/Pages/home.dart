@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:to_do_list/auth/Login.dart';
+import '/auth/Login.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -254,27 +256,54 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProfileScreen() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Profile",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            SizedBox(height: 20),
-            Text("Email: ${user?.email ?? 'Not Available'}",
-                style: TextStyle(fontSize: 16)),
-            SizedBox(height: 10),
-            Text("Name: $_userName", style: TextStyle(fontSize: 16)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _showUpdateNameDialog,
-              child: Text("Update Name"),
+    return Stack(
+      children: [
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Profile",
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                SizedBox(height: 20),
+                Text("Email: ${user?.email ?? 'Not Available'}",
+                    style: TextStyle(fontSize: 16)),
+                SizedBox(height: 10),
+                Text("Name: $_userName", style: TextStyle(fontSize: 16)),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _showUpdateNameDialog,
+                  child: Text("Update Name"),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              });
+            },
+            icon: Icon(Icons.logout_outlined, color: Colors.white),
+            label: Text("Log Out", style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, // Red button color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
