@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'SignUp.dart'; // Ensure correct import
+import 'SignUp.dart';
 import '../Pages/home.dart';
 
 class Login extends StatefulWidget {
@@ -101,10 +101,20 @@ class _LoginState extends State<Login> {
 
     if (email.isNotEmpty) {
       try {
+        // Check if the email exists
+        var signInMethods =
+            await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+
+        if (signInMethods.isEmpty) {
+          _showDialog('Error', 'No user found with this email.');
+          return;
+        }
+
+        // Send password reset email
         await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
         _showDialog('Success', 'Password reset link sent to $email');
-      } catch (e) {
-        _showDialog('Error', 'Failed to send reset email: $e');
+      } on FirebaseAuthException catch (e) {
+        _showDialog('Error', e.message ?? 'Failed to send reset email.');
       }
     } else {
       _showDialog('Error', 'Please enter your email.');
