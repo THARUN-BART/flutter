@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'SignUp.dart';
 import '../Pages/home.dart';
 
@@ -51,15 +52,38 @@ class _LoginState extends State<Login> {
     }
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Retrieve the verified status from Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          bool verifiedStatus = userDoc.get('verified') ?? false;
+
+          if (verifiedStatus) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          } else {
+            _showDialog('Login Failed', 'Your account is not verified.');
+          }
+        } else {
+          _showDialog('Login Failed', 'User data not found.');
+        }
+      } else {
+        _showDialog('Login Failed', 'Failed to get user information.');
+      }
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'Unknown error occurred.';
       if (e.code == 'user-not-found') {
