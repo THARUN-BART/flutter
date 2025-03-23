@@ -68,7 +68,7 @@ class _LoginState extends State<Login> {
             .get();
 
         if (userDoc.exists) {
-          bool verifiedStatus = userDoc.get('verified') ?? false;
+          bool verifiedStatus = userDoc.get('isVerified') ?? false;
 
           if (verifiedStatus) {
             Navigator.pushReplacement(
